@@ -4,27 +4,23 @@
 \alias{model.test}
 \title{Model Test}
 \usage{
-model.test(input_disparity, model, pool.variance = NULL,
-  time.split.model = NULL, return.model.full = FALSE,
-  plot.disparity = TRUE, fixed.optima = FALSE, control.list = list(fnscale
-  = -1))
+model.test(data, models, pool.variance = NULL, time.split,
+  fixed.optima = FALSE, control.list = list(fnscale = -1), verbose = TRUE)
 }
 \arguments{
-\item{input_disparity}{A dispRity object used to test models of evolution through time}
+\item{data}{A \code{dispRity} object used to test models of evolution through time.}
 
-\item{model}{The named model of evolution to allow for changes in disparity-through-time using a homogenous or hetergenous model. A single model can be used as input or multiple modes can be supplied in a vector. If a vector with multiple modes is supplied then the model will test for shifts in modes at the time supplied by 'time.split'. If a list is supplied different models will be fit to the data (See \bold{Details})}
+\item{models}{The model(s) of evolution to allow for changes in disparity-through-time using a homogenous or hetergenous model. A single model can be used as input or multiple modes can be supplied in a vector. If a vector with multiple modes is supplied then the model will test for shifts in modes at the time supplied by \code{time.split}. If a list is supplied different models will be fit to the data (See \bold{Details}).}
 
-\item{pool.variance}{If NULL the difference in variances will be calculated using Bartlett's Test of equal variances. If there is no significant difference among variances, then variance in samples will be pooled and the same variance will be used for all samples. A significance difference will not pool variances and the original variance will be used for model-testing. If argument TRUE or FALSE are used, Bartlett's test will be ignored and the analyses will use the user-set pooling of variances}
+\item{pool.variance}{If \code{NULL} (default) the difference in variances will be calculated using Bartlett's Test (\code{\limk[stats]{bartlett.test}}) of equal variances. If there is no significant difference among variances, then variance in samples will be pooled and the same variance will be used for all samples. A significance difference will not pool variances and the original variance will be used for model-testing. If argument \code{TRUE} or \code{FALSE} are used, Bartlett's test will be ignored and the analyses will use the user-set pooling of variances.}
 
-\item{return.model.full}{Logical argument to return full parameter values from each tested model (default = FALSE)}
+\item{time.split}{The age of the change in mode (\code{numeric}). The age is measured as the time before the most recent sample, and multiple ages can be supplied in a vector. If no age is supplied for models then all possible time shifts are fit in the model, and the highest likelihood model is returned. Note this only applies to heterogenous models (See \bold{Details}).}
 
-\item{plot.disparity}{Logical argument to plot the measure of disparity through time and a barplot of the relative support for each model (default = FALSE)}
+\item{fixed.optima}{A \code{logical} value, whether to use an estimated optimum value in OU models (\code{FALSE} - default), or whether to set the OU optimum to the ancestral value (\code{TRUE}).}
 
-\item{fixed.optima}{Logical to use an estimated optimum value in OU models (fixed.optima = FALSE), or whether to set the OU optimum to the ancestral value (fixed.optima = TRUE)}
+\item{control.list}{A \code{list} of fine-tune control inputs for the optim function.}
 
-\item{control.list}{Fine-tune control inputs for the optim function}
-
-\item{time.split}{The age of the change in mode. The age is measured as the time before the most recent sample, and multiple ages can be supplied in a vector. If no age is supplied for models then all possible time shifts are fit in the model, and the highest likelihood model is returned. Note this only applies to heterogenous models (See \bold{Details})}
+\item{verbose}{\code{logical}, whether to display the model results as computed (\code{TRUE} - default).}
 }
 \description{
 Fit models of disparity change through time
