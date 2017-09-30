@@ -33,15 +33,22 @@
 #' @export
 #' 
 
+
 # source("sanitizing.R")
-# data <- sumVar
+# source("model.test_fun.R")
+# set.seed(123)
+# data(BeckLee_mat99)
+# data(BeckLee_ages)
+# data(BeckLee_tree)
+# continuousData <- time.subsamples(BeckLee_mat99, BeckLee_tree, method="continuous", time=seq(120, 0, length.out=120), model="gradual")
+# data_bootstrapped <- boot.matrix(continuousData)
+# data <- dispRity(data_bootstrapped, c(sum, variances))
+# models <- list("BM", "OU", "multi.OU", c("BM", "Trend"))
 # pool.variance=NULL
-# return.model.full=FALSE
-# plot.disparity=TRUE
 # fixed.optima=FALSE
+# verbose = TRUE
 # control.list=list(fnscale = -1)
-# pool.variance=F
-# model=models.to.test
+# time.split <- 66
 
 model.test <- function(data, models, pool.variance = NULL, time.split, fixed.optima = FALSE, control.list = list(fnscale = -1), verbose = TRUE) {
     
@@ -69,10 +76,11 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
         
     ## use Bartlett's test of variance to decide whether to pool variance or not (not used if pool variance is specified as TRUE or FALSE before-hand)
     if(is.null(pool.variance)) {
-        p_test <- stats::bartlett.variance(model_test_input)
+    	p_test <- bartlett.variance(model_test_input)
+        #p_test <- stats::bartlett.test(model_test_input)$p.value TG: is this equivalent?
         if(p_test < 0.05) {
             pool.variance <- FALSE
-            if(verbose) cat(paste0("Evidence of unequal variance (Bartlett's test of equal variances p = ", signif(p_test, 3), ").\nVariance is not pooled.\n"))
+            if(verbose) cat(paste0("Evidence of equal variance (Bartlett's test of equal variances p = ", signif(p_test, 3), ").\nVariance is not pooled.\n"))
         } else {
             pool.variance <- TRUE
             if(verbose) cat(paste0("Evidence of unequal variance (Bartlett's test of equal variances p = ", signif(p_test, 3), ").\nVariance is pooled.\n"))
@@ -85,19 +93,18 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
     } 
 
     ## Running the models
-    model.out <- lapply(1:n_models, lapply.models)
-
+    models_out <- lapply(1:n_models, lapply.models, models, model_test_input, time.split, verbose)
     
     ## judge all models using AICc values
-    model.parameters <- sapply(model, length) - 1 + sapply(model.out, function(x) length(x[[1]]))
-    model.likelihoods <- unlist(sapply(model.out, function(x) x[2]))
+    model_parameters <- sapply(models, length) - 1 + sapply(models_out, function(x) length(x[[1]]))
+    model_likelihoods <- unlist(sapply(models_out, function(x) x[2]))
     sample_size <- length(model_test_input[[1]])
      
-     aic <- aicc <- c()
+    aic <- aicc <- c()
      
-     for(y in 1:length(model.likelihoods)) {
-         aic <- c(aic, (-2 * model.likelihoods[y]) + (2 * model.parameters[y]))
-         aicc <- c(aicc, (-2 * model.likelihoods[y]) + (2 * model.parameters[y]) * (sample_size / ( sample_size - model.parameters[y] - 1)))
+    for(y in 1:length(model_likelihoods)) {
+        aic <- c(aic, (-2 * model_likelihoods[y]) + (2 * model_parameters[y]))
+        aicc <- c(aicc, (-2 * model_likelihoods[y]) + (2 * model_parameters[y]) * (sample_size / ( sample_size - model_parameters[y] - 1)))
     }
     
     model.names <- sapply(model, function(x) paste(x, collapse="_"))
@@ -110,23 +117,9 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
     return_out <- list()
     return_out$aicc.models <- cbind(aicc, delta.aicc, weight.aicc)
     rownames(return_out$aicc.models) <- model.names
-    
-    if(plot.disparity) {
-    
-        par(mfrow=c(1, 2), mar=c(4,4,2,2), oma=c(10, 4, 4, 4))
-        xAxis <- max(model_test_input[[4]]) - model_test_input[[4]]
-        plot(xAxis, model_test_input[[1]], type="l", xlim=c(max(xAxis), 0), xlab="Time", ylab="central tendency", las=1)
-        varUp <- model_test_input[[1]] + model_test_input[[2]]
-        varDown <- model_test_input[[1]] - model_test_input[[2]]
-        polygon(x=c(xAxis, rev(xAxis)), c(varUp, rev(varDown)), col="grey", border=F)
-        lines(xAxis, model_test_input[[1]], col="grey50")
-        abline(v=time.split, lty=2, lwd=2)
-        plotcor <- barplot(weight.aicc[order.aicc], las=1, ylim=c(0, 1), col="grey30", border=F, ylab="Akaike weights", names=F)
-        mtext(model.names[order.aicc], 1, las=2, at=plotcor[,1], line=1)
-    }
-    
+
     if(return.model.full) {
-        return_out$full.details <- model.out
+        return_out$full.details <- models_out
         names(return_out$full.details) <- model.names
     }
     
