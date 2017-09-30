@@ -42,14 +42,17 @@ select.model.list <- function(data, observed = TRUE, cent.tend = median, rarefac
     } else {
         subsamples <- seq(1:length(data$subsamples))
     }
-    
-    subsamples <- max(subsamples) - subsamples
+
+    ## Making sure the samples are in the right chronological order
+    if(subsamples[1] < subsamples[2]) {
+        subsamples <- rev(subsamples)
+    }
 
     ## Returns the data
     return(list("central_tendency" = central_tendency,
                 "variance" = variance,
                 "sample_size" = sample_length,
-                "subsamples" = rev(subsamples)))
+                "subsamples" = subsamples))
 }
 
 ## Pooling variance function
@@ -109,7 +112,7 @@ bartlett.variance <- function(model.test_input) {
 }
 
 ## Lapply loop for applying the models
-lapply.models <- function(one_model, models, model_test_input, time.split, verbose) {
+lapply.models <- function(one_model, models, model_test_input, time.split, control.list, fixed.optima, verbose) {
     
     ## Selecting the first model
     model_type <- models[[one_model]]
@@ -139,7 +142,7 @@ lapply.models <- function(one_model, models, model_test_input, time.split, verbo
             ## Lapply wrapper
             lapply.all.time <- function(one_time, model_test_input, ten_times, model_type, control.list, fixed.optima, verbose) {
                 if(verbose) cat(paste0("    model ", one_time - 8, " of ", length(ten_times), "\n"))
-                return(model.test.lik(model_test_input, model_type, time.split = one_time, control.list, fixed.optima=fixed.optima))
+                return(model.test.lik(model_test_input, model_type, time.split = one_time, control.list, fixed.optima = fixed.optima))
             }
 
             ## Run all the models
@@ -168,7 +171,7 @@ lapply.models <- function(one_model, models, model_test_input, time.split, verbo
     } else {
 
         if(verbose) cat(paste0("Running ", paste(model_type, collapse = ":"), " model..."))
-        model_out <- model.test.lik(model_test_input, model.type.in = model_type, time.split, control.list, fixed.optima=fixed.optima)
+        model_out <- model.test.lik(model_test_input, model.type.in = model_type, time.split, control.list, fixed.optima = fixed.optima)
         if(verbose) cat(paste0("Done. Log-likelihood = ", round(model_out$value, digit = 3), "\n"))
     }
 
