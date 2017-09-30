@@ -76,7 +76,7 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
         
     ## use Bartlett's test of variance to decide whether to pool variance or not (not used if pool variance is specified as TRUE or FALSE before-hand)
     if(is.null(pool.variance)) {
-    	p_test <- bartlett.variance(model_test_input)
+        p_test <- bartlett.variance(model_test_input)
         #p_test <- stats::bartlett.test(model_test_input)$p.value TG: is this equivalent?
         if(p_test < 0.05) {
             pool.variance <- FALSE
@@ -95,34 +95,22 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
     ## Running the models
     models_out <- lapply(1:n_models, lapply.models, models, model_test_input, time.split, verbose)
     
-    ## judge all models using AICc values
+    ## Calculate the models AIC and AICc
     model_parameters <- sapply(models, length) - 1 + sapply(models_out, function(x) length(x[[1]]))
     model_likelihoods <- unlist(sapply(models_out, function(x) x[2]))
     sample_size <- length(model_test_input[[1]])
-     
-    aic <- aicc <- c()
-     
-    for(y in 1:length(model_likelihoods)) {
-        aic <- c(aic, (-2 * model_likelihoods[y]) + (2 * model_parameters[y]))
-        aicc <- c(aicc, (-2 * model_likelihoods[y]) + (2 * model_parameters[y]) * (sample_size / ( sample_size - model_parameters[y] - 1)))
-    }
-    
-    model.names <- sapply(model, function(x) paste(x, collapse="_"))
-    
-    names(aic) <- model.names
-    delta.aicc <- aicc - min(aicc)
-    weight.aicc <- exp(-0.5 * delta.aicc) / sum(exp(-0.5 * delta.aicc))
-    order.aicc <- order(weight.aicc, decreasing=T)
+    aic <- (-2 * model_likelihoods) + (2 * model_parameters)
+    aicc <- (-2 * model_likelihoods) + (2 * model_parameters) * (sample_size / ( sample_size - model_parameters - 1))
+    delta_aicc <- aicc - min(aicc)
+    weight_aicc <- exp(-0.5 * delta_aicc) / sum(exp(-0.5 * delta_aicc))
+    order_aicc <- order(weight_aicc, decreasing = TRUE)
 
-    return_out <- list()
-    return_out$aicc.models <- cbind(aicc, delta.aicc, weight.aicc)
-    rownames(return_out$aicc.models) <- model.names
+    ## Get the model names
+    model_names <- sapply(models, function(x) paste(x, collapse = ":"))
+    names(weight_aicc) <- names(delta_aicc) <- names(aicc) <- names(aic) <- names(models_out) <- model_names
 
-    if(return.model.full) {
-        return_out$full.details <- models_out
-        names(return_out$full.details) <- model.names
-    }
-    
+    ## Generate the output format
+    return_out <- list("aicc.models" = cbind(aicc, delta_aicc, weight_aicc), "full.details" = models_out)    
     class(return_out) <- c("dispRity", "model.test")
-    invisible(return_out)
+    return(return_out)
 }    

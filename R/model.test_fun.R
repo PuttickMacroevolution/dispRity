@@ -82,7 +82,7 @@ model.test.lik <- function(model_test_input, model.type.in, time.split, control.
     parameters[8] <- eb.parameters(model_test_input)[2]
 
     if(is.null(control.list$ndeps)) {
-        control.list$ndeps <- abs(p / 1000000)
+        control.list$ndeps <- abs(parameters / 1000000)
         control.list$ndeps[control.list$ndeps == 0] <- 1e-08
     }
     
