@@ -112,7 +112,7 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
     model_test_input <- select.model.list(data)
 
     ## models
-    check.method(models, c("BM", "OU", "Trend", "Stasis", "EB"), msg = "models")
+    check.method(models, c("BM", "OU", "Trend", "Stasis", "EB", "multi.OU"), msg = "models")
     n_models <- length(models)
 
     ## pool.variance

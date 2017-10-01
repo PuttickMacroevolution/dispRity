@@ -72,7 +72,7 @@ pooled.variance <- function(data.model.test, rescale.variance = FALSE)  {
 ## Model test likelihood
 model.test.lik <- function(model_test_input, model.type.in, time.split, control.list, fixed.optima) {
 
-    half_life <- (model_test_input$subsamples[length(model_test_input$subsamples)] - model_test_input$subsamples[1]) / 4    
+    half_life <- (model_test_input$subsamples[length(model_test_input$subsamples)] - model_test_input$subsamples[1]) / 4
     sts_params <- stasis.parameters(model_test_input)
     parameters <- c()
     parameters[1] <- model_test_input$central_tendency[1]
