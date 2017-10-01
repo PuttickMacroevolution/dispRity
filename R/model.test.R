@@ -15,26 +15,26 @@
 #' @details The models are fit using maximum likelihood optimisation using the function optim. Fine-tuning of the search algorithms can be applied using the control.list argument. Models can be fit using a homogenous model with the same process applied to the entire sequence or models with time splits that represent a change in parameters or a shift in mode. For the time split model if a time value is provided, then the shift is tested at that value only. If no time shift is supplied then all shift times that allow for there to be at least 10 samples in each time bin are tested. If the sample is fewer than 30 samples long then no time splits are searched for (unless a time split is supplied by the user). Parameters are shared across different modes. For example, c("BM", "OU") would fit a model in which the process starts with a BM model and shifts toan OU process. The ancestral value at the start of the sequence and sigma squared value are shared across the models. Any combination of the following homogenous models (with the exception of 'multi.OU') can be fit to the data:
 #' 
 #' \itemize{
-#' 		\item{"BM"}{Fits a unbiased random walk model of evolution (Felsenstein 1985; Hunt 2006). The model optimises the ancestral state and the 'step-variance' (sigma-squared)}
+#'         \item{"BM"}{Fits a unbiased random walk model of evolution (Felsenstein 1985; Hunt 2006). The model optimises the ancestral state and the 'step-variance' (sigma-squared)}
 #'  
-#' 		\item{"OU"}{The Ornstein-Uhlenbeck model of evolution in which the change in variance is constrained to an optimum value (Hansen 1997). In this model there are three parameters: optima, alpha, and ancestral state. The strength of attraction based on the parameter alpha and the ancestral state is estimated from the data. The optima value is estimated from the data, and this can lead to optima being found outside the known data values. If this is the case the model is similar to a trend model. If the argument, fixed.optima is set to TRUE, the model will not estimate optima but constrain it to the first value in the sequence}
+#'         \item{"OU"}{The Ornstein-Uhlenbeck model of evolution in which the change in variance is constrained to an optimum value (Hansen 1997). In this model there are three parameters: optima, alpha, and ancestral state. The strength of attraction based on the parameter alpha and the ancestral state is estimated from the data. The optima value is estimated from the data, and this can lead to optima being found outside the known data values. If this is the case the model is similar to a trend model. If the argument, fixed.optima is set to TRUE, the model will not estimate optima but constrain it to the first value in the sequence}
 #' 
-#' 		\item{"Trend"}{Fits a Brownian motion model with a directional component. This model is also known as the General Random Walk (Hunt 2006). This model has three parameters: the ancestral state, the 'step-variance' (sigma-squared), and the trend component.}
+#'         \item{"Trend"}{Fits a Brownian motion model with a directional component. This model is also known as the General Random Walk (Hunt 2006). This model has three parameters: the ancestral state, the 'step-variance' (sigma-squared), and the trend component.}
 #' 
-#' 		\item{"Stasis"}{Fits a model in which traits evolve with variance (omega) around a mean (theta). This model is time-independent in that the model is guided only by the variance and attraction to the mean (Hunt 2006)}
+#'         \item{"Stasis"}{Fits a model in which traits evolve with variance (omega) around a mean (theta). This model is time-independent in that the model is guided only by the variance and attraction to the mean (Hunt 2006)}
 #' 
-#' 		\item{"Early Burst(EB)"}{Trait variance accumulates early in the evolution of a trait and decreases exponentially through time (Blomberg et al. 2003; Harmon et al. 2010). This model has three parameters: ancestral state, sigma-squared, and the exponential rate of decrease}
+#'         \item{"Early Burst(EB)"}{Trait variance accumulates early in the evolution of a trait and decreases exponentially through time (Blomberg et al. 2003; Harmon et al. 2010). This model has three parameters: ancestral state, sigma-squared, and the exponential rate of decrease}
 #' 
-#' 		\item{"multi.OU"}{Fits a model in which the value of the optima shifts at one or more time splits. The values of the 'step-variance' (sigma squared) and attraction to the optima (alpha) are shared across all the samples. This model can not be fit with other models - the multiOU system can be be fit to the model only}
+#'         \item{"multi.OU"}{Fits a model in which the value of the optima shifts at one or more time splits. The values of the 'step-variance' (sigma squared) and attraction to the optima (alpha) are shared across all the samples. This model can not be fit with other models - the multiOU system can be be fit to the model only}
 #' }
 #' 
 #' @return A list of class \code{dispRity} and \code{model.test} that can be plotted and summarised via \code{\link{summary.dispRity}} and \code{\link{plot.dispRity}}.
 #' The list is composed of:
 #' \itemize{
 #  \item{"$models.data"}{the models raw data}
-#' 	\item{"$aic.models"}{the list of models AICs}
-#' 	\item{"$full.models"}{the list of the full models outputs}
-# 	\item{"$call"}{the function call}
+#'     \item{"$aic.models"}{the list of models AICs}
+#'     \item{"$full.models"}{the list of the full models outputs}
+#     \item{"$call"}{the function call}
 #' }
 #' 
 #' @examples
@@ -59,8 +59,8 @@
 #' 
 #' ## Calculating finer scale disparity
 #' data <- time.subsamples(BeckLee_mat99, BeckLee_tree,
-#' 						  method = "continuous", model = "gradual",
-#' 						  time = rev(seq(from = 0, to = 120, length.out = 120)))
+#'                           method = "continuous", model = "gradual",
+#'                           time = rev(seq(from = 0, to = 120, length.out = 120)))
 #' data <- dispRity(boot.matrix(data), metric = c(sum, variances))
 #' 
 #' ## Testing more complex models
@@ -105,7 +105,7 @@
 
 model.test <- function(data, models, pool.variance = NULL, time.split, fixed.optima = FALSE, control.list = list(fnscale = -1), verbose = TRUE) {
     
-	match_call <- match.call()
+    match_call <- match.call()
 
     ## data
     check.class(data, "dispRity")
@@ -122,9 +122,9 @@ model.test <- function(data, models, pool.variance = NULL, time.split, fixed.opt
 
     ## time.split
     if(!missing(time.split)) {
-    	silent <- check.class(time.split, c("numeric", "integer"))
+        silent <- check.class(time.split, c("numeric", "integer"))
     } else {
-    	time.split <- NULL
+        time.split <- NULL
     }
 
     ## fixed optima

@@ -1,6 +1,5 @@
 opt.mode <- function(p, model.type.in, time.split, data.model.test, ou.split, fixed.optima)  {
      
-     
     if(!is.null(time.split)) time.split <-  sort(sapply(time.split, function(u) which.min(abs(u - rev(data.model.test[[4]])))))
      
     total.n <- length(data.model.test$subsamples)
@@ -111,5 +110,5 @@ opt.mode <- function(p, model.type.in, time.split, data.model.test, ou.split, fi
     total_mean <-  c(total_mean, output.mean)
     }
     
-    mnormt::dmnorm(t(data.model.test$central_tendency), mean =  total_mean, varcov = total_VCV, log = TRUE)
+    return(mnormt::dmnorm(t(data.model.test$central_tendency), mean =  total_mean, varcov = total_VCV, log = TRUE))
 }
